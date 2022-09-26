@@ -31,13 +31,22 @@ app.get("/posts/:id", async (req, res) => {
     const post = await prisma.post.findUnique({
       where: { id: postId },
       include: { user: true, likes: true, comments: true },
-    })
-    if(post){
-        res.send(post);
-    } else{
-        res.status(404).send({error:'Post not Found!'})
+    });
+    if (post) {
+      res.send(post);
+    } else {
+      res.status(404).send({ error: "Post not Found!" });
     }
-    
+  } catch (error) {
+    // @ts-ignore
+    res.status(400).send({ error: error.message });
+  }
+});
+
+app.post("/posts", async (req, res) => {
+  try {
+    const post = await prisma.post.create({ data: req.body });
+    res.send(post);
   } catch (error) {
     // @ts-ignore
     res.status(400).send({ error: error.message });
