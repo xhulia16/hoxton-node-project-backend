@@ -68,6 +68,32 @@ app.delete("/posts/:id", async (req, res) => {
   }
 });
 
+// get all comments
+
+app.get("/comments", async (req, res) => {
+  try {
+    const comment = await prisma.comment.findMany({
+      include: { post: true, user: true },
+    });
+    res.send(comment);
+  } catch (error) {
+    // @ts-ignore
+    res.status(404).send({ error: error.message });
+  }
+});
+//  create  a new comment
+
+app.post("/comments", async (req, res) => {
+  try {
+    const comment = await prisma.comment.create({ data: req.body });
+    res.send(comment);
+  } catch (error) {
+    // @ts-ignore
+
+    res.status(404).send({ error: error.message });
+  }
+});
+
 app.listen(port, () => {
   console.log(`yay : http://localhost:${port}`);
 });
