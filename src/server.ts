@@ -1,11 +1,9 @@
 import express from 'express'
 import cors from 'cors'
-import {PrismaClient} from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
 
 const prisma  = new PrismaClient()
-
-
 
 
 const app = express()
@@ -18,10 +16,6 @@ app.get('/posts' , async (req, res)=>{
    const posts =  await prisma.post.findMany({include:{user:true, comments:true, likes:true}})
    res.send(posts)
 })
-
-
-
-
 
 
 
