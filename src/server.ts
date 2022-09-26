@@ -15,8 +15,13 @@ app.use(cors())
 const port = 5126
 
 app.get('/posts' , async (req, res)=>{
-   const posts =  await prisma.post.findMany({include:{user:true, comments:true, likes:true}})
-   res.send(posts)
+   try{
+    const posts =  await prisma.post.findMany({include:{user:true, comments:true, likes:true}})
+     res.send(posts)
+    } catch (error){
+        // @ts-ignore
+        res.status(400).send({error:error.message})
+    }
 })
 
 
