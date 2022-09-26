@@ -43,9 +43,24 @@ app.get("/posts/:id", async (req, res) => {
   }
 });
 
+//  create a post
+
 app.post("/posts", async (req, res) => {
   try {
     const post = await prisma.post.create({ data: req.body });
+    res.send(post);
+  } catch (error) {
+    // @ts-ignore
+    res.status(400).send({ error: error.message });
+  }
+});
+
+//  delete a post
+
+app.delete("/posts/:id", async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const post = await prisma.post.delete({ where: { id } });
     res.send(post);
   } catch (error) {
     // @ts-ignore
