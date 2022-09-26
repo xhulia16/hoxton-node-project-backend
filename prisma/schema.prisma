@@ -7,7 +7,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
+  url      = "file:.data.db"
 }
 
 model User {
@@ -17,7 +17,6 @@ model User {
   posts    Post[]
   comments Comment[]
   likes    Likes[]
-
 }
 
 model Post {
