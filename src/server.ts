@@ -15,6 +15,20 @@ app.options('*', cors())
 
 const port = 5126;
 
+const SECRET = "ABC"
+
+function getToken(id: number) {
+  return jwt.sign({ id: id }, SECRET, { expiresIn: "5 days" })
+
+}
+
+async function getCurrentUser(token: string) {
+  // @ts-ignore
+  const { id } = jwt.verify(token, SECRET)
+  const user = await prisma.user.findUnique({ where: { id: id } })
+  return user
+}
+
 //  get all posts
 app.get("/posts", async (req, res) => {
   try {
@@ -99,43 +113,83 @@ app.post("/comments", async (req, res) => {
   }
 });
 
-app.patch('/users/:id', async (req, res)=>{
-  const id= Number(req.params.id)
- const passChanged= await prisma.user.update({where: {id}, data: {password: bcrypt.hashSync(req.body.password)}})
-res.send(passChanged)
+app.patch('/users/:id', async (req, res) => {
+  const id = Number(req.params.id)
+  const passChanged = await prisma.user.update({ where: { id }, data: { password: bcrypt.hashSync(req.body.password) } })
+  res.send(passChanged)
 })
 // comment
 
 
+app.post("/sign-up", async (req, res) => {
+  try {
+    const match = await prisma.user.findUnique({ where: { email: req.body.email } })
+    if (match) {
+      res.status(400).send({ error: "This email already exists" })
+    }
+    else {
+      const newUser = await prisma.user.create({
+        data: {
+          name: req.body.name,
+          email: req.body.email,
+          password: bcrypt.hashSync(req.body.password)
+        }
+      })
+      res.send({ user: newUser, token: getToken(newUser.id) })
+    }
+  }
 
+  catch (error) {
+    // @ts-ignore
+    res.status(400).send({ error: error.message })
+  }
 
-app.post("/sign-up", async (req, res)=>{
- const newUser= await prisma.user.create({data:{
-    name: req.body.name,
-    email: req.body.email, 
-    password: bcrypt.hashSync(req.body.password)
-  }})
-  res.send(newUser)
 })
 
-app.post("/sign-in", async (req, res)=>{
-  const user= await prisma.user.findUnique({where:{email: req.body.email}})
+app.post("/sign-in", async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({ where: { email: req.body.email } })
 
-  if(user && bcrypt.compareSync(req.body.password, user.password)){
-    res.send({message: "User logged in sucessfully!"})
-  }
-  else{
-    res.status(400).send({message: "User did not log in"})
+    if (user && bcrypt.compareSync(req.body.password, user.password)) {
+      res.send({ user: user, token: getToken(user.id) })
+    }
+    else {
+      res.status(400).send({ message: "User did not log in" })
 
+    }
   }
+  catch (error) {
+    // @ts-ignore
+    res.status(400).send({ error: error.message })
+  }
+
 })
 
 // app.get('/users', async (req, res)=>{
-    
+
 // })
+
+app.get("/validate", async (req, res) => {
+  try {
+      if (req.headers.authorization) {
+          const user = await getCurrentUser(req.headers.authorization)
+          // @ts-ignore
+          res.send({ user, token: getToken(user.id)})
+      }
+  }
+
+  catch (error) {
+      // @ts-ignore
+      res.status(400).send({ error: error.message })
+
+  }
+})
+
+
 
 app.listen(port, () => {
   console.log(`yay : http://localhost:${port}`);
 });
 
-//comment
+
+
