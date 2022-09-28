@@ -11,14 +11,16 @@ datasource db {
 }
 
 model User {
-  id       Int       @id @default(autoincrement())
-  name     String
-  email    String    @unique
-  image    String?
-  password String
-  posts    Post[]
-  comments Comment[]
-  likes    Likes[]
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  image     String?
+  password  String
+  posts     Post[]
+  comments  Comment[]
+  likes     Likes[]
+  followers Follows[] @relation("follower") 
+  following Follows[] @relation("following") 
 }
 
 model Post {
@@ -48,9 +50,10 @@ model Likes {
   postId Int
 }
 
-// model Follows {
-//   follower  User @relation(fields: [userId], references: [id])
-//   following User @relation(fields: [userId], references: [id])
-//   userId    Int
-//   userId    Int
-// } 
+model Follows {
+  id          Int  @id @default(autoincrement())
+  follower    User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  following   User @relation("following", fields: [followingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  followerId  Int  
+  followingId Int 
+}

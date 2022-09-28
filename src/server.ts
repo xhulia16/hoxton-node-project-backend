@@ -29,18 +29,47 @@ async function getCurrentUser(token: string) {
   return user
 }
 
-//  get all posts
-app.get("/posts", async (req, res) => {
-  try {
+app.get("/posts/:id", async (req, res) => {
+  try{
+    const id = Number(req.params.id)
+
     const posts = await prisma.post.findMany({
       include: { user: true, comments: true, likes: true },
     });
-    res.send(posts);
-  } catch (error) {
+    const following = await prisma.follows.findMany({ where: { followerId: id}  })
+  
+    let specificPosts = []
+    for (let item of posts) {
+    for (let relationship of following) {
+        if (relationship.followingId === item.userId) {
+          //@ts-ignore
+          specificPosts.push(item)
+        }
+      }
+    }
+    res.send(specificPosts)
+  }
+  catch (error) {
     // @ts-ignore
     res.status(400).send({ error: error.message });
   }
-});
+})
+
+
+
+// //  get all posts
+// app.get("/posts", async (req, res) => {
+//   try {
+//     const posts = await prisma.post.findMany({
+//       include: { user: true, comments: true, likes: true },
+//     });
+//     res.send(posts);
+
+//   } catch (error) {
+//     // @ts-ignore
+//     res.status(400).send({ error: error.message });
+//   }
+// });
 
 //  get a specific post
 
@@ -171,16 +200,16 @@ app.post("/sign-in", async (req, res) => {
 
 app.get("/validate", async (req, res) => {
   try {
-      if (req.headers.authorization) {
-          const user = await getCurrentUser(req.headers.authorization)
-          // @ts-ignore
-          res.send({ user, token: getToken(user.id)})
-      }
+    if (req.headers.authorization) {
+      const user = await getCurrentUser(req.headers.authorization)
+      // @ts-ignore
+      res.send({ user, token: getToken(user.id) })
+    }
   }
 
   catch (error) {
-      // @ts-ignore
-      res.status(400).send({ error: error.message })
+    // @ts-ignore
+    res.status(400).send({ error: error.message })
 
   }
 })
