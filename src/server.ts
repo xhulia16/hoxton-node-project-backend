@@ -104,6 +104,9 @@ app.patch('/users/:id', async (req, res)=>{
  const passChanged= await prisma.user.update({where: {id}, data: {password: bcrypt.hashSync(req.body.password)}})
 res.send(passChanged)
 })
+// comment
+
+
 
 
 app.post("/sign-up", async (req, res)=>{
