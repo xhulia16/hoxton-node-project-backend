@@ -94,10 +94,9 @@ app.post("/comments", async (req, res) => {
   }
 });
 
+// comment
 
-app.get('/users', async (req, res)=>{
-    
-})
+
 
 app.listen(port, () => {
   console.log(`yay : http://localhost:${port}`);
