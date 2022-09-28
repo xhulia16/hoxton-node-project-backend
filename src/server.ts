@@ -29,18 +29,20 @@ async function getCurrentUser(token: string) {
   return user
 }
 
+// get personalized posts for user 
+
 app.get("/posts/:id", async (req, res) => {
-  try{
+  try {
     const id = Number(req.params.id)
 
     const posts = await prisma.post.findMany({
       include: { user: true, comments: true, likes: true },
     });
-    const following = await prisma.follows.findMany({ where: { followerId: id}  })
-  
+    const following = await prisma.follows.findMany({ where: { followerId: id } })
+
     let specificPosts = []
     for (let item of posts) {
-    for (let relationship of following) {
+      for (let relationship of following) {
         if (relationship.followingId === item.userId) {
           //@ts-ignore
           specificPosts.push(item)
@@ -73,7 +75,7 @@ app.get("/posts/:id", async (req, res) => {
 
 //  get a specific post
 
-app.get("/posts/:id", async (req, res) => {
+app.get("/specificpost/:id", async (req, res) => {
   try {
     const postId = Number(req.params.id);
     const post = await prisma.post.findUnique({
@@ -95,8 +97,25 @@ app.get("/posts/:id", async (req, res) => {
 
 app.post("/posts", async (req, res) => {
   try {
-    const post = await prisma.post.create({ data: req.body });
-    res.send(post);
+    const post = await prisma.post.create({ data: req.body, include: { user: true, comments: true, likes: true } });
+    // send back all the posts to update state
+
+    const posts = await prisma.post.findMany({
+      include: { user: true, comments: true, likes: true },
+    });
+    const following = await prisma.follows.findMany({ where: { followerId: req.body.userId } })
+
+    let specificPosts = []
+    for (let item of posts) {
+      for (let relationship of following) {
+        if (relationship.followingId === item.userId) {
+          //@ts-ignore
+          specificPosts.push(item)
+        }
+      }
+    }
+    res.send(specificPosts); 
+
   } catch (error) {
     // @ts-ignore
     res.status(400).send({ error: error.message });
