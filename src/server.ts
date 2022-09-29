@@ -57,6 +57,7 @@ app.get("/posts/:id", async (req, res) => {
   }
 })
 
+//  comment
 
 app.get("/users/:id", async (req, res)=>{
   try{
@@ -324,6 +325,8 @@ app.get('/search/:name', async (req,res)=>{
   })
   res.send(results)
 })
+
+//  this is test
 
 app.listen(port, () => {
   console.log(`yay : http://localhost:${port}`);
