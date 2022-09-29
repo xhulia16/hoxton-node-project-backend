@@ -19,8 +19,8 @@ model User {
   posts     Post[]
   comments  Comment[]
   likes     Likes[]
-  followers Follows[] @relation("follower") 
-  following Follows[] @relation("following") 
+  followers Follows[] @relation("follower")
+  following Follows[] @relation("following")
 }
 
 model Post {
@@ -54,6 +54,6 @@ model Follows {
   id          Int  @id @default(autoincrement())
   follower    User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   following   User @relation("following", fields: [followingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  followerId  Int  
-  followingId Int 
+  followerId  Int
+  followingId Int
 }
