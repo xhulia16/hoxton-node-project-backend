@@ -306,7 +306,7 @@ app.post("/likeposts", async (req, res) => {
 
     const post = await prisma.post.findUnique({
       where: { id: like.postId },
-      include: { user: true, likes: true, comments: true },
+      include: { user: true, likes: true, comments: {include:{user: true}} },
     });
 
     res.send(post);
