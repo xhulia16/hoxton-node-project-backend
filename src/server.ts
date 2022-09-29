@@ -78,20 +78,18 @@ app.get("/users/:id", async (req, res)=>{
   }
 })
 
+app.get("/bookmarks/:id", async (req, res)=>{
+  try{
+    const id= Number(req.params.id)
+    const bookmarks= await prisma.bookmarks.findMany({where: {userId: id}, include:{post: {include: {user:true}}}})
+     res.send(bookmarks)
+  }
+catch(error){
+  //@ts-ignore
+  res.status(400).send({error: error.message})
+}
+})
 
-// //  get all posts
-// app.get("/posts", async (req, res) => {
-//   try {
-//     const posts = await prisma.post.findMany({
-//       include: { user: true, comments: true, likes: true },
-//     });
-//     res.send(posts);
-
-//   } catch (error) {
-//     // @ts-ignore
-//     res.status(400).send({ error: error.message });
-//   }
-// });
 
 // get all users
 

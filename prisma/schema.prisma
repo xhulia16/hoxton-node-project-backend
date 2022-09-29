@@ -21,16 +21,18 @@ model User {
   likes     Likes[]
   followers Follows[] @relation("follower")
   following Follows[] @relation("following")
+  Bookmarks Bookmarks[]
 }
 
 model Post {
-  id       Int       @id @default(autoincrement())
-  content  String
-  image    String?
-  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  userId   Int
-  comments Comment[]
-  likes    Likes[]
+  id        Int         @id @default(autoincrement())
+  content   String
+  image     String?
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId    Int
+  comments  Comment[]
+  likes     Likes[]
+  Bookmarks Bookmarks[]
 }
 
 model Comment {
@@ -56,4 +58,12 @@ model Follows {
   following   User @relation("following", fields: [followingId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   followerId  Int
   followingId Int
+}
+
+model Bookmarks {
+  id   Int  @id @default(autoincrement())
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  userId Int
+  postId Int
 }
