@@ -114,7 +114,7 @@ app.post("/posts", async (req, res) => {
         }
       }
     }
-    res.send(specificPosts); 
+    res.send(specificPosts);
 
   } catch (error) {
     // @ts-ignore
@@ -135,7 +135,7 @@ app.delete("/posts/:id", async (req, res) => {
   }
 });
 
-// get all comments
+// get all comments bla bla 
 
 app.get("/comments", async (req, res) => {
   try {
@@ -152,8 +152,19 @@ app.get("/comments", async (req, res) => {
 
 app.post("/comments", async (req, res) => {
   try {
-    const comment = await prisma.comment.create({ data: req.body });
-    res.send(comment);
+    const comment = {
+      postId: req.body.postId,
+      userId: req.body.userId,
+      comment: req.body.comment
+    }
+    const newComment = await prisma.comment.create({ data: {postId: comment.postId, userId: comment.userId, comment: comment.comment} });
+
+    const post = await prisma.post.findUnique({
+      where: { id: req.body.postId },
+      include: { user: true, likes: true, comments: true },
+    });
+
+    res.send(post);
   } catch (error) {
     // @ts-ignore
 
@@ -233,32 +244,44 @@ app.get("/validate", async (req, res) => {
   }
 })
 
+
+
+
+// things t add
 // get likes 
 
-app.get('/likes', async (req, res)=>{
+app.get('/likes', async (req, res) => {
   const likes = await prisma.likes.findMany()
   res.send(likes)
 })
 
 //  like a post 
 
-// app.post ('/likeposts', async (req, res)=>{
-//   const like = {
-//     postId :req.body.postId
-//   }
-//   try{
-//     const likePost = await prisma.likes.create({
-//    data:{
-//     postId:like.postId
-//    } ,
-//    include:{post:true}  
-//     })
-//     res.send(likePost)
-//   } catch (error){
-//     // @ts-ignore
-//     res.status(400).send({error:error.message})
-//   }
-// })
+app.post('/likeposts', async (req, res) => {
+  const like = {
+    postId: req.body.postId,
+    userId: req.body.userId
+  }
+  try {
+    const likePost = await prisma.likes.create({
+      data: {
+        postId: like.postId, 
+        userId: like.userId
+      },
+      include: { post: true }
+    })
+
+    const post = await prisma.post.findUnique({
+      where: { id: like.postId },
+      include: { user: true, likes: true, comments: true },
+    });
+
+    res.send(post)
+  } catch (error) {
+    // @ts-ignore
+    res.status(400).send({ error: error.message })
+  }
+})
 
 
 app.listen(port, () => {
