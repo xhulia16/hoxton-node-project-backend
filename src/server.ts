@@ -58,6 +58,24 @@ app.get("/posts/:id", async (req, res) => {
 })
 
 
+app.get("/users/:id", async (req, res)=>{
+  try{
+    const id= Number(req.params.id)
+    const user= await prisma.user.findUnique({
+      where: {id}, 
+      include:{followers: true, following:true, posts:true}})
+      if(user){
+        res.send(user)
+      }
+      else{
+        res.status(404).send({error: "User not found!"})
+      }
+  }
+  catch(error){
+    //@ts-ignore
+    res.status(400).send({error: error.message})
+  }
+})
 
 // //  get all posts
 // app.get("/posts", async (req, res) => {
@@ -80,7 +98,7 @@ app.get("/specificpost/:id", async (req, res) => {
     const postId = Number(req.params.id);
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      include: { user: true, likes: true, comments: true },
+      include: { user: true, likes: true, comments: {include: {user:true}}},
     });
     if (post) {
       res.send(post);
@@ -140,7 +158,7 @@ app.delete("/posts/:id", async (req, res) => {
 app.get("/comments", async (req, res) => {
   try {
     const comment = await prisma.comment.findMany({
-      include: { post: true, user: true },
+      include: {user: true },
     });
     res.send(comment);
   } catch (error) {
@@ -157,14 +175,16 @@ app.post("/comments", async (req, res) => {
       userId: req.body.userId,
       comment: req.body.comment
     }
-    const newComment = await prisma.comment.create({ data: {postId: comment.postId, userId: comment.userId, comment: comment.comment} });
+    const newComment = await prisma.comment.create({ 
+      data: {postId: comment.postId, userId: comment.userId, comment: comment.comment}, 
+      include:{user:true}
+     });
 
     const post = await prisma.post.findUnique({
       where: { id: req.body.postId },
-      include: { user: true, likes: true, comments: true },
+      include: { user: true, likes: true, comments: {include: {user:true}}},
     });
 
-    //fddfdfffddfd
 
     res.send(post);
   } catch (error) {
