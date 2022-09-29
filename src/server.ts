@@ -242,23 +242,23 @@ app.get('/likes', async (req, res)=>{
 
 //  like a post 
 
-app.post ('/likeposts', async (req, res)=>{
-  const like = {
-    postId :req.body.postId
-  }
-  try{
-    const likePost = await prisma.likes.create({
-   data:{
-    postId:like.postId
-   } ,
-   include:{post:true}  
-    })
-    res.send(likePost)
-  } catch (error){
-    // @ts-ignore
-    res.status(400).send({error:error.message})
-  }
-})
+// app.post ('/likeposts', async (req, res)=>{
+//   const like = {
+//     postId :req.body.postId
+//   }
+//   try{
+//     const likePost = await prisma.likes.create({
+//    data:{
+//     postId:like.postId
+//    } ,
+//    include:{post:true}  
+//     })
+//     res.send(likePost)
+//   } catch (error){
+//     // @ts-ignore
+//     res.status(400).send({error:error.message})
+//   }
+// })
 
 
 app.listen(port, () => {
