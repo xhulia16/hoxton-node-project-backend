@@ -349,8 +349,11 @@ try{
     res.send({error: "You are already following this user"})
   }
 else{
+
+  const user= await prisma.user.findUnique({where: {id: req.body.followingId}})
+
   const request= await prisma.follows.create({data:{followingId: req.body.followingId, followerId: req.body.followerId}})
-  res.send({message: `You are now following them!}`})
+  res.send({message: `You are now following ${user?.name}!`})
 }
 }
 catch(error){
