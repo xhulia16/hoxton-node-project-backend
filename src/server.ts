@@ -91,6 +91,20 @@ catch(error){
 })
 
 
+app.post("/bookmarks", async (req, res)=>{
+  try{
+    const newBookmark= await prisma.bookmarks.create({data: {
+      userId: req.body.userId,
+      postId: req.body.postId
+    }})
+    res.send(newBookmark)
+  }
+catch(error){
+    //@ts-ignore
+    res.status(400).send({error: error.message})
+}
+})
+
 // get all users
 
 app.get('/users', async(req, res)=>{
