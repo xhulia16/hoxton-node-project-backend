@@ -340,6 +340,25 @@ app.get('/search/:name', async (req,res)=>{
 
 //  this is test
 
+app.post('/follows', async (req, res)=>{
+try{
+
+  const relationship= await prisma.follows.findFirst({where: {followerId: req.body.followerId, AND: {followingId: req.body.followingId}}})
+
+  if(relationship){
+    res.send({error: "You are already following this user"})
+  }
+else{
+  const request= await prisma.follows.create({data:{followingId: req.body.followingId, followerId: req.body.followerId}})
+  res.send({message: `You are now following them!}`})
+}
+}
+catch(error){
+  //@ts-ignore
+  res.status(400).send({error: error.message})
+}
+})
+
 app.listen(port, () => {
   console.log(`yay : http://localhost:${port}`);
 });
